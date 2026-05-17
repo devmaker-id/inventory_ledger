@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id Int @id @default(autoincrement())
+
+  name     String
+  email    String @unique
+  password String
+
+  phone   String? @unique
+  address String?
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  isActive  Boolean   @default(true)
+  lastLogin DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  productsCreated Products[]
+
+  userStocks UserStocks[]
+
+  stockMovementsFrom StockMovements[] @relation("FromUser")
+
+  stockMovementsTo StockMovements[] @relation("ToUser")
+
+  @@index([roleId])
+}
+
+model Role {
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  description String?
+
+  // OWNER=1 DISTRIBUTOR=2 RETAIL=3
+  level Int?
+
+  users Users[]
+}
+
+model Products {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String?
+
+  // Harga modal pusat
+  basePrice Int
+
+  image String?
+
+  categoryId Int
+
+  createdBy Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  category Category @relation(fields: [categoryId], references: [id])
+
+  creator Users @relation(fields: [createdBy], references: [id])
+
+  userStocks UserStocks[]
+
+  stockMovements StockMovements[]
+
+  @@index([categoryId])
+  @@index([createdBy])
+  @@index([name])
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Products[]
+}
+
+// Stock per user
+model UserStocks {
+  id Int @id @default(autoincrement())
+
+  userId Int
+
+  productId Int
+
+  qty Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user Users @relation(fields: [userId], references: [id])
+
+  product Products @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+// Stock movement ledger
+model StockMovements {
+  id Int @id @default(autoincrement())
+  fromUserId Int?
+  toUserId Int?
+  productId Int
+  qty Int
+  salePrice Int?
+  totalPrice Int?
+
+  // DISTRIBUTION RETURN SALE ADJUSTMENT
+  type String
+
+  note String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  fromUser Users? @relation("FromUser", fields: [fromUserId], references: [id])
+  toUser Users? @relation("ToUser", fields: [toUserId], references: [id])
+  product Products @relation(fields: [productId], references: [id])
+
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([productId])
+  @@index([type])
+}
