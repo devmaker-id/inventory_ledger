@@ -585,3 +585,296 @@ export const getSalesHistoryService =
       },
     };
   };
+
+export const getDistributorSummaryService =
+  async () => {
+
+    /**
+     * GET SALES
+     */
+    const sales =
+      await prisma.stockMovements.findMany({
+
+        where: {
+          type: "SALE",
+        },
+
+        include: {
+
+          fromUser: {
+
+            include: {
+
+              parent: true,
+            },
+          },
+        },
+      });
+
+    /**
+     * GROUP BY DISTRIBUTOR
+     */
+    const summaryMap =
+      new Map();
+
+    for (const sale of sales) {
+
+      const distributor =
+        sale.fromUser?.parent;
+
+      if (!distributor) {
+        continue;
+      }
+
+      const distributorId =
+        distributor.id;
+
+      /**
+       * INIT
+       */
+      if (
+        !summaryMap.has(
+          distributorId
+        )
+      ) {
+
+        summaryMap.set(
+          distributorId,
+          {
+
+            distributorId,
+
+            distributorName:
+              distributor.name,
+
+            totalTransactions: 0,
+
+            totalQty: 0,
+
+            totalRevenue: 0,
+
+            ownerShare: 0,
+
+            distributorShare: 0,
+          }
+        );
+      }
+
+      /**
+       * CURRENT SUMMARY
+       */
+      const current =
+        summaryMap.get(
+          distributorId
+        );
+
+      const revenue =
+        sale.totalPrice || 0;
+
+      /**
+       * UPDATE
+       */
+      current.totalTransactions += 1;
+
+      current.totalQty +=
+        sale.qty;
+
+      current.totalRevenue +=
+        revenue;
+
+      current.ownerShare +=
+        revenue * 0.7;
+
+      current.distributorShare +=
+        revenue * 0.3;
+    }
+
+    return Array.from(
+      summaryMap.values()
+    );
+  };
+
+  export const getRetailSummaryService =
+  async () => {
+
+    /**
+     * GET SALES
+     */
+    const sales =
+      await prisma.stockMovements.findMany({
+
+        where: {
+          type: "SALE",
+        },
+
+        include: {
+
+          fromUser: {
+
+            include: {
+
+              parent: true,
+            },
+          },
+        },
+      });
+
+    /**
+     * GROUP RETAIL
+     */
+    const summaryMap =
+      new Map();
+
+    for (const sale of sales) {
+
+      const retail =
+        sale.fromUser;
+
+      if (!retail) {
+        continue;
+      }
+
+      const retailId =
+        retail.id;
+
+      /**
+       * INIT
+       */
+      if (
+        !summaryMap.has(
+          retailId
+        )
+      ) {
+
+        summaryMap.set(
+          retailId,
+          {
+
+            retailId,
+
+            retailName:
+              retail.name,
+
+            distributorName:
+              retail.parent?.name ||
+              "-",
+
+            totalTransactions: 0,
+
+            totalQty: 0,
+
+            totalRevenue: 0,
+          }
+        );
+      }
+
+      /**
+       * CURRENT
+       */
+      const current =
+        summaryMap.get(
+          retailId
+        );
+
+      current.totalTransactions += 1;
+
+      current.totalQty +=
+        sale.qty;
+
+      current.totalRevenue +=
+        sale.totalPrice || 0;
+    }
+
+    return Array.from(
+      summaryMap.values()
+    );
+  };
+
+  export const getTopProductsService =
+  async () => {
+
+    /**
+     * GET SALES
+     */
+    const sales =
+      await prisma.stockMovements.findMany({
+
+        where: {
+          type: "SALE",
+        },
+
+        include: {
+
+          product: true,
+        },
+      });
+
+    /**
+     * GROUP PRODUCTS
+     */
+    const summaryMap =
+      new Map();
+
+    for (const sale of sales) {
+
+      const product =
+        sale.product;
+
+      const productId =
+        product.id;
+
+      /**
+       * INIT
+       */
+      if (
+        !summaryMap.has(
+          productId
+        )
+      ) {
+
+        summaryMap.set(
+          productId,
+          {
+
+            productId,
+
+            productName:
+              product.name,
+
+            totalTransactions: 0,
+
+            totalQty: 0,
+
+            totalRevenue: 0,
+          }
+        );
+      }
+
+      /**
+       * CURRENT
+       */
+      const current =
+        summaryMap.get(
+          productId
+        );
+
+      current.totalTransactions += 1;
+
+      current.totalQty +=
+        sale.qty;
+
+      current.totalRevenue +=
+        sale.totalPrice || 0;
+    }
+
+    /**
+     * SORT DESC
+     */
+    return Array.from(
+      summaryMap.values()
+    ).sort(
+      (a, b) =>
+        b.totalQty -
+        a.totalQty
+    );
+  };

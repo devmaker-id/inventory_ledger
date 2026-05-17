@@ -6,105 +6,229 @@ import {
 
 export const seedUsers = async () => {
 
+  /**
+   * GET ROLES
+   */
   const roles = await prisma.role.findMany();
 
   const owner =
-    roles.find((r) => r.name === "OWNER");
+    roles.find(
+      (r) => r.name === "OWNER"
+    );
 
   const distributor =
     roles.find(
-      (r) => r.name === "DISTRIBUTOR"
+      (r) =>
+        r.name === "DISTRIBUTOR"
     );
 
   const retail =
-    roles.find((r) => r.name === "RETAIL");
+    roles.find(
+      (r) => r.name === "RETAIL"
+    );
 
   if (
     !owner ||
     !distributor ||
     !retail
   ) {
-    throw new Error("Roles not found");
+
+    throw new Error(
+      "Roles not found"
+    );
   }
 
+  /**
+   * HASH PASSWORD
+   */
   const password =
-    await hashPassword("123456");
+    await hashPassword(
+      "123456"
+    );
 
-  await prisma.users.createMany({
-    data: [
+  /**
+   * OWNER
+   */
+  const ownerUser =
+    await prisma.users.upsert({
 
-      /**
-       * OWNER
-       */
-      {
-        name: "Main Owner",
+      where: {
+        email:
+          "owner@test.com",
+      },
 
-        email: "owner@test.com",
+      update: {},
+
+      create: {
+
+        name:
+          "Main Owner",
+
+        email:
+          "owner@test.com",
 
         password,
 
-        roleId: owner.id,
+        roleId:
+          owner.id,
+      },
+    });
+
+  /**
+   * DISTRIBUTOR BANDUNG
+   */
+  const distributorBandung =
+    await prisma.users.upsert({
+
+      where: {
+
+        email:
+          "dist-bandung@test.com",
       },
 
-      /**
-       * DISTRIBUTOR
-       */
-      {
-        name: "Distributor Bandung",
+      update: {},
 
-        email: "dist-bandung@test.com",
+      create: {
+
+        name:
+          "Distributor Bandung",
+
+        email:
+          "dist-bandung@test.com",
 
         password,
 
-        roleId: distributor.id,
+        roleId:
+          distributor.id,
+
+        parentId:
+          ownerUser.id,
+      },
+    });
+
+  /**
+   * DISTRIBUTOR JAKARTA
+   */
+  const distributorJakarta =
+    await prisma.users.upsert({
+
+      where: {
+
+        email:
+          "dist-jakarta@test.com",
       },
 
-      {
-        name: "Distributor Jakarta",
+      update: {},
 
-        email: "dist-jakarta@test.com",
+      create: {
+
+        name:
+          "Distributor Jakarta",
+
+        email:
+          "dist-jakarta@test.com",
 
         password,
 
-        roleId: distributor.id,
+        roleId:
+          distributor.id,
+
+        parentId:
+          ownerUser.id,
       },
+    });
 
-      /**
-       * RETAIL
-       */
-      {
-        name: "Retail Cicaheum",
+  /**
+   * RETAIL BANDUNG
+   */
+  await prisma.users.upsert({
 
-        email: "retail-cicaheum@test.com",
+    where: {
 
-        password,
+      email:
+        "retail-cicaheum@test.com",
+    },
 
-        roleId: retail.id,
-      },
+    update: {},
 
-      {
-        name: "Retail Antapani",
+    create: {
 
-        email: "retail-antapani@test.com",
+      name:
+        "Retail Cicaheum",
 
-        password,
+      email:
+        "retail-cicaheum@test.com",
 
-        roleId: retail.id,
-      },
+      password,
 
-      {
-        name: "Retail Bekasi",
+      roleId:
+        retail.id,
 
-        email: "retail-bekasi@test.com",
-
-        password,
-
-        roleId: retail.id,
-      },
-    ],
-
-    skipDuplicates: true,
+      parentId:
+        distributorBandung.id,
+    },
   });
 
-  console.log("Users seeded 🚀");
+  await prisma.users.upsert({
+
+    where: {
+
+      email:
+        "retail-antapani@test.com",
+    },
+
+    update: {},
+
+    create: {
+
+      name:
+        "Retail Antapani",
+
+      email:
+        "retail-antapani@test.com",
+
+      password,
+
+      roleId:
+        retail.id,
+
+      parentId:
+        distributorBandung.id,
+    },
+  });
+
+  /**
+   * RETAIL JAKARTA
+   */
+  await prisma.users.upsert({
+
+    where: {
+
+      email:
+        "retail-bekasi@test.com",
+    },
+
+    update: {},
+
+    create: {
+
+      name:
+        "Retail Bekasi",
+
+      email:
+        "retail-bekasi@test.com",
+
+      password,
+
+      roleId:
+        retail.id,
+
+      parentId:
+        distributorJakarta.id,
+    },
+  });
+
+  console.log(
+    "Users seeded 🚀"
+  );
 };

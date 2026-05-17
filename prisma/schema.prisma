@@ -35,6 +35,11 @@ model Users {
 
   stockMovementsTo StockMovements[] @relation("ToUser")
 
+  // Relation User Punya siapa
+  parentId Int?
+  parent Users? @relation("UserHierarchy", fields: [parentId], references: [id])
+  children Users[] @relation("UserHierarchy")
+
   @@index([roleId])
 }
 

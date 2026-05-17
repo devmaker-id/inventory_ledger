@@ -12,6 +12,9 @@ import {
   saleStockService,
   getSalesSummaryService,
   getSalesHistoryService,
+  getDistributorSummaryService,
+  getRetailSummaryService,
+  getTopProductsService,
 } from "./stocks.service.js";
 
 import {
@@ -341,6 +344,87 @@ export const getSalesHistoryController =
         success: true,
 
         ...result,
+      });
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+
+export const getDistributorSummaryController =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const summary =
+        await getDistributorSummaryService();
+
+      return res.json({
+        success: true,
+
+        data: summary,
+      });
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+
+export const getRetailSummaryController =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const summary =
+        await getRetailSummaryService();
+
+      return res.json({
+        success: true,
+
+        data: summary,
+      });
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+
+  export const getTopProductsController =
+  async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const products =
+        await getTopProductsService();
+
+      return res.json({
+        success: true,
+
+        data: products,
       });
 
     } catch (error: any) {

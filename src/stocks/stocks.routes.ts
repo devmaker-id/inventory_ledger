@@ -9,6 +9,9 @@ import {
   saleStockController,
   getSalesSummaryController,
   getSalesHistoryController,
+  getDistributorSummaryController,
+  getRetailSummaryController,
+  getTopProductsController,
 } from "./stocks.controller.js";
 
 import {
@@ -116,4 +119,29 @@ router.get(
   getSalesHistoryController
 );
 
+router.get(
+  "/distributor-summary",
+  authorizeRoles(
+    "OWNER"
+  ),
+  getDistributorSummaryController
+);
+
+router.get(
+  "/retail-summary",
+  authorizeRoles(
+    "OWNER",
+    "DISTRIBUTOR"
+  ),
+  getRetailSummaryController
+);
+
+router.get(
+  "/top-products",
+  authorizeRoles(
+    "OWNER",
+    "DISTRIBUTOR"
+  ),
+  getTopProductsController
+);
 export default router;
