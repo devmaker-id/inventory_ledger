@@ -15,6 +15,8 @@ import {
   getDistributorSummaryService,
   getRetailSummaryService,
   getTopProductsService,
+  getSettlementReportService,
+  getSettlementDetailService,
 } from "./stocks.service.js";
 
 import {
@@ -28,6 +30,8 @@ import {
   TransferStockBody,
   SaleStockBody,
   SalesHistoryQuery,
+  SettlementQuery,
+  SettlementDetailQuery,
 } from "./stocks.types.js";
 
 export const transferStockController =
@@ -425,6 +429,83 @@ export const getRetailSummaryController =
         success: true,
 
         data: products,
+      });
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+
+export const getSettlementReportController =
+  async (
+
+    req: Request<
+      {},
+      {},
+      {},
+      SettlementQuery
+    >,
+
+    res: Response
+  ) => {
+
+    try {
+
+      const report =
+        await getSettlementReportService(
+          req.query
+        );
+
+      return res.json({
+        success: true,
+
+        data: report,
+      });
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+
+        message: error.message,
+      });
+    }
+  };
+
+export const getSettlementDetailController =
+  async (
+
+    req: Request<
+      { distributorId: string },
+      {},
+      {},
+      SettlementDetailQuery
+    >,
+
+    res: Response
+  ) => {
+
+    try {
+
+      const result =
+        await getSettlementDetailService(
+
+          Number(
+            req.params.distributorId
+          ),
+
+          req.query
+        );
+
+      return res.json({
+        success: true,
+
+        data: result,
       });
 
     } catch (error: any) {

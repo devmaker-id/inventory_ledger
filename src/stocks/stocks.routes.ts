@@ -12,6 +12,8 @@ import {
   getDistributorSummaryController,
   getRetailSummaryController,
   getTopProductsController,
+  getSettlementReportController,
+  getSettlementDetailController,
 } from "./stocks.controller.js";
 
 import {
@@ -144,4 +146,21 @@ router.get(
   ),
   getTopProductsController
 );
+
+router.get(
+  "/settlement-report",
+  authorizeRoles(
+    "OWNER"
+  ),
+  getSettlementReportController
+);
+
+router.get(
+  "/settlement-detail/:distributorId",
+  authorizeRoles(
+    "OWNER"
+  ),
+  getSettlementDetailController
+);
+
 export default router;

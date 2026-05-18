@@ -7,6 +7,8 @@ import {
   SalesHistoryQuery,
   SaleStockBody,
   TransferStockBody,
+  SettlementQuery,
+  SettlementDetailQuery,
 } from "./stocks.types.js";
 
 export const transferStockService =
@@ -877,4 +879,282 @@ export const getDistributorSummaryService =
         b.totalQty -
         a.totalQty
     );
+  };
+
+export const getSettlementReportService =
+  async (
+    query: SettlementQuery
+  ) => {
+
+    /**
+     * WHERE
+     */
+    const whereCondition:
+      Prisma.StockMovementsWhereInput = {
+
+      type: "SALE",
+
+      ...(query.startDate &&
+      query.endDate && {
+
+        createdAt: {
+
+          gte: new Date(
+            query.startDate
+          ),
+
+          lte: new Date(
+            query.endDate
+          ),
+        },
+      }),
+    };
+
+    /**
+     * GET SALES
+     */
+    const sales =
+      await prisma.stockMovements.findMany({
+
+        where: whereCondition,
+
+        include: {
+
+          fromUser: {
+
+            include: {
+
+              parent: true,
+            },
+          },
+        },
+      });
+
+    /**
+     * GROUP DISTRIBUTOR
+     */
+    const summaryMap =
+      new Map();
+
+    for (const sale of sales) {
+
+      const distributor =
+        sale.fromUser?.parent;
+
+      if (!distributor) {
+        continue;
+      }
+
+      const distributorId =
+        distributor.id;
+
+      /**
+       * INIT
+       */
+      if (
+        !summaryMap.has(
+          distributorId
+        )
+      ) {
+
+        summaryMap.set(
+          distributorId,
+          {
+
+            distributorId,
+
+            distributorName:
+              distributor.name,
+
+            period: {
+
+              startDate:
+                query.startDate ||
+                null,
+
+              endDate:
+                query.endDate ||
+                null,
+            },
+
+            totalTransactions: 0,
+
+            totalQty: 0,
+
+            totalRevenue: 0,
+
+            ownerShare: 0,
+
+            distributorShare: 0,
+          }
+        );
+      }
+
+      /**
+       * CURRENT
+       */
+      const current =
+        summaryMap.get(
+          distributorId
+        );
+
+      const revenue =
+        sale.totalPrice || 0;
+
+      current.totalTransactions += 1;
+
+      current.totalQty +=
+        sale.qty;
+
+      current.totalRevenue +=
+        revenue;
+
+      current.ownerShare +=
+        revenue * 0.7;
+
+      current.distributorShare +=
+        revenue * 0.3;
+    }
+
+    return Array.from(
+      summaryMap.values()
+    );
+  };
+
+export const getSettlementDetailService =
+  async (
+
+    distributorId: number,
+
+    query: SettlementDetailQuery
+  ) => {
+
+    /**
+     * GET DISTRIBUTOR
+     */
+    const distributor =
+      await prisma.users.findUnique({
+
+        where: {
+          id: distributorId,
+        },
+      });
+
+    if (!distributor) {
+
+      throw new Error(
+        "Distributor not found"
+      );
+    }
+
+    /**
+     * GET SALES
+     */
+    const sales =
+      await prisma.stockMovements.findMany({
+
+        where: {
+
+          type: "SALE",
+
+          ...(query.startDate &&
+          query.endDate && {
+
+            createdAt: {
+
+              gte: new Date(
+                query.startDate
+              ),
+
+              lte: new Date(
+                query.endDate
+              ),
+            },
+          }),
+
+          fromUser: {
+
+            parentId:
+              distributorId,
+          },
+        },
+
+        include: {
+
+          fromUser: true,
+
+          product: true,
+        },
+
+        orderBy: {
+          id: "desc",
+        },
+      });
+
+    /**
+     * SUMMARY
+     */
+    let totalTransactions = 0;
+
+    let totalQty = 0;
+
+    let totalRevenue = 0;
+
+    for (const sale of sales) {
+
+      totalTransactions += 1;
+
+      totalQty += sale.qty;
+
+      totalRevenue +=
+        sale.totalPrice || 0;
+    }
+
+    return {
+
+      distributor: {
+
+        id: distributor.id,
+
+        name: distributor.name,
+      },
+
+      summary: {
+
+        totalTransactions,
+
+        totalQty,
+
+        totalRevenue,
+
+        ownerShare:
+          totalRevenue * 0.7,
+
+        distributorShare:
+          totalRevenue * 0.3,
+      },
+
+      transactions:
+        sales.map((sale) => ({
+
+          id: sale.id,
+
+          retailName:
+            sale.fromUser?.name,
+
+          productName:
+            sale.product.name,
+
+          qty: sale.qty,
+
+          salePrice:
+            sale.salePrice,
+
+          totalPrice:
+            sale.totalPrice,
+
+          createdAt:
+            sale.createdAt,
+        })),
+    };
   };

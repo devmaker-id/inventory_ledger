@@ -34,3 +34,13 @@ export interface SalesHistoryQuery {
   startDate?: string;
   endDate?: string;
 }
+
+export interface SettlementQuery {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface SettlementDetailQuery {
+  startDate?: string;
+  endDate?: string;
+}
