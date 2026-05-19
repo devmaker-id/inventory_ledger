@@ -4,6 +4,7 @@ import usersRoutes from "./users/users.routes.js";
 import productRoutes from "./products/products.routes.js";
 import categoryRoutes from "./categories/categories.routes.js";
 import stockRoutes from "./stocks/stocks.routes.js";
+import analyticsRoutes from "./analytics/analytics.routes.js";
 
 const app = express();
 
@@ -22,5 +23,7 @@ app.use("/api/stocks", stockRoutes);
 app.use("/users", usersRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+
+app.use("/api/analytics", analyticsRoutes);
 
 export default app;
