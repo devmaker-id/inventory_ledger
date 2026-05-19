@@ -25,6 +25,7 @@ export const generateToken = (user: {
   id: number;
   email: string;
   role: string;
+  parentId?: number | null,
 }) => {
   const secret: Secret = process.env.JWT_SECRET as string;
 
@@ -34,9 +35,11 @@ export const generateToken = (user: {
 
   return jwt.sign(
     {
-      userId: user.id,
+      // userId: user.id,
+      id: user.id,
       email: user.email,
       role: user.role,
+      parentId: user.parentId
     },
     secret,
     options

@@ -1,3 +1,10 @@
+export interface JwtPayload {
+  id: number;
+  email: string;
+  role: string;
+  parentId?: number | null;
+}
+
 export type LoginDTO = {
   email: string;
   password: string;

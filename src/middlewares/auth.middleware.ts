@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { JwtPayload } from "../auth/auth.types.js";
 
 /**
  * VERIFY JWT TOKEN
@@ -25,25 +26,22 @@ export const verifyToken = (
      * format:
      * Bearer TOKEN
      */
-    const token = authHeader.split(" ")[1];
-
-    // 3. cek token
-    if (!token) {
+    const parts = authHeader.split(" ");
+    //invalid format
+    if (parts.length !== 2 || parts[0] !== "Bearer") {
       return res.status(401).json({
         success: false,
-        message: "Token missing",
+        message: "Invalid token format"
       });
     }
+    //token
+    const token = parts[1];
 
     // 4. verify token
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET as string
-    ) as {
-      userId: number;
-      email: string;
-      role: string;
-    };
+    ) as JwtPayload;
 
     // 5. simpan user ke request
     req.user = decoded;

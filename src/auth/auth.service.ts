@@ -75,12 +75,9 @@ export const registerService = async (
     throw new Error("Email already registered");
   }
 
-  // 2. cari role
-  const roleName = data.role || "RETAIL";
-
   const role = await prisma.role.findFirst({
     where: {
-      name: roleName,
+      name: "RETAIL",
     },
   });
 
