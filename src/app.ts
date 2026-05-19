@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+
 import authRoutes from "./auth/auth.routes.js";
 import usersRoutes from "./users/users.routes.js";
 import productRoutes from "./products/products.routes.js";
@@ -8,6 +10,13 @@ import analyticsRoutes from "./analytics/analytics.routes.js";
 import exportsRoutes from "./exports/exports.routes.js";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+)
 
 app.use(express.json());
 
