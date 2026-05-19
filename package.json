@@ -15,9 +15,11 @@
     "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1"
+    "multer": "^2.1.1",
+    "pdfkit": "^0.18.0"
   },
   "prisma": {
     "seed": "tsx prisma/seed/index.ts"
@@ -28,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.1.0",
     "@types/node": "^25.7.0",
+    "@types/pdfkit": "^0.17.6",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3",
     "tsx": "^4.21.0",
