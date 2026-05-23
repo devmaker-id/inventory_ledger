@@ -15,8 +15,8 @@ export const createProductController = async (
   res: Response
 ) => {
   try {
-    const userId = req.user?.userId as number;
-    const image = req.file?.filename;
+    const userId = req.user.id as number;
+    // const image = req.file?.filename;
 
     const errors = createProductValidation(req.body);
 
@@ -31,7 +31,7 @@ export const createProductController = async (
     const product = await createProductService(
       req.body,
       userId,
-      image
+      // image
     );
 
     return res.json({
@@ -96,7 +96,7 @@ export const updateProductController = async (
     );
 
     if (
-      product.createdBy !== req.user?.userId &&
+      product.createdBy !== req.user.id &&
       req.user?.role !== "OWNER"
     ) {
       return res.status(403).json({
@@ -132,7 +132,7 @@ export const deleteProductController = async (
     );
 
     if (
-      product.createdBy !== req.user?.userId &&
+      product.createdBy !== req.user.id &&
       req.user?.role !== "OWNER"
     ) {
       return res.status(403).json({

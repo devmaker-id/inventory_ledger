@@ -19,3 +19,5 @@ export interface LowStockQuery {
 export interface RecentTransactionQuery {
   limit?: string;
 }
+
+export type SummaryQuery = {};

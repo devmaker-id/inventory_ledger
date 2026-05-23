@@ -10,6 +10,17 @@ import {
   RecentTransactionQuery,
 } from "./analytics.types.js";
 
+export const getSummaryService =
+  async () => {
+
+    return {
+      totalInventory: 1240,
+      totalRetail: 32,
+      totalDistributor: 8,
+      totalTransactions: 12480,
+    };
+  };
+  
 export const getSalesChartService =
   async (
     query: SalesChartQuery

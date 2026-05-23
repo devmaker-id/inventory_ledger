@@ -4,6 +4,7 @@ import {
 } from "express";
 
 import {
+  getSummaryService,
   getSalesChartService,
   getDailyReportService,
   getMonthlyReportService,
@@ -12,6 +13,7 @@ import {
 } from "./analytics.service.js";
 
 import {
+  SummaryQuery,
   SalesChartQuery,
   DailyReportQuery,
   MonthlyReportQuery,
@@ -20,12 +22,68 @@ import {
 } from "./analytics.types.js";
 
 import {
+  summaryValidation,
   salesChartValidation,
   dailyReportValidation,
   monthlyReportValidation,
   lowStockValidation,
   recentTransactionValidation,
 } from "./analytics.validation.js";
+
+export const getSummaryController =
+  async (
+
+    req: Request<
+      {},
+      {},
+      {},
+      SummaryQuery
+    >,
+
+    res: Response
+  ) => {
+
+    try {
+
+      /**
+       * VALIDATION
+       */
+      const errors =
+        summaryValidation();
+
+      if (
+        errors.length > 0
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Validation error",
+
+          errors,
+        });
+      }
+
+      /**
+       * SERVICE
+       */
+      const summary =
+        await getSummaryService();
+      return res.json({
+        success: true,
+        data: summary,
+      });
+    } catch (error: any) {
+
+      return res.status(500).json({
+        success: false,
+        message:
+          error.message,
+      });
+    }
+  };
 
 export const getSalesChartController =
   async (

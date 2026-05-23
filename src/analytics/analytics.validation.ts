@@ -6,6 +6,10 @@ import {
   RecentTransactionQuery,
 } from "./analytics.types.js";
 
+export const summaryValidation = () => {
+  return [];
+};
+
 export const salesChartValidation =
   (
     query: SalesChartQuery

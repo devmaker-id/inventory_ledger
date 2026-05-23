@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 export const createProductService = async (
   body: any,
   userId: number,
-  image?: string
+  // image?: string
 ) => {
 
   return await prisma.products.create({
@@ -19,7 +19,7 @@ export const createProductService = async (
 
       createdBy: userId,
 
-      image: image || null,
+      // image: image || null,
     },
   });
 };

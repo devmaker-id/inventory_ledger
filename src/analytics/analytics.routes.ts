@@ -10,6 +10,7 @@ import {
 } from "../middlewares/role.middleware.js";
 
 import {
+  getSummaryController,
   getSalesChartController,
   getDailyReportController,
   getMonthlyReportController,
@@ -23,6 +24,15 @@ const router = Router();
  * PROTECTED
  */
 router.use(verifyToken);
+
+router.get(
+  "/summary",
+  authorizeRoles(
+    "OWNER",
+    "DISTRIBUTOR"
+  ),
+  getSummaryController
+);
 
 /**
  * SALES CHART

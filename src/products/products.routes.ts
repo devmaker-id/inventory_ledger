@@ -26,7 +26,8 @@ router.get("/:id", getProductByIdController);
 router.use(verifyToken);
 router.use(authorizeRoles("OWNER", "DISTRIBUTOR"));
 
-router.post("/", upload.single("image"), createProductController);
+// router.post("/", upload.single("image"), createProductController);
+router.post("/", createProductController);
 router.put("/:id", updateProductController);
 router.delete("/:id", deleteProductController);
 
